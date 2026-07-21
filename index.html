@@ -47,6 +47,9 @@
     color:#eaf3ed;transition:.2s;
   }
   nav.links a:hover{background:var(--gold);color:#231a06;box-shadow:0 4px 12px rgba(201,154,58,.45)}
+  nav.links a.auth-pill{background:var(--gold);color:#231a06;font-weight:600}
+  nav.links a.auth-pill:hover{background:var(--gold-light)}
+  #profileLink{color:#fff;font-weight:600}
   .brand{display:flex;align-items:center;gap:12px}
   .brand img{width:52px;height:52px;border-radius:12px;background:#fff;padding:3px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
   .brand-name{font-size:1.7rem;font-weight:800;letter-spacing:.5px;text-shadow:0 2px 8px rgba(0,0,0,.25)}
@@ -243,6 +246,8 @@
       <a href="#rooms">Rooms</a>
       <a href="#bookings">Your Booking</a>
       <a href="#support">Support</a>
+      <a href="profile.html" id="profileLink" style="display:none">👤 <span id="profileName">Profile</span></a>
+      <a href="login.html" id="authLink" class="auth-pill">Login</a>
     </nav>
     <a href="#home" class="brand">
       <span class="brand-name"><span class="b">Book</span><span class="n">Nest</span></span>
@@ -515,13 +520,26 @@ function openModal(roomId){
   modalPrice.textContent = fmt(r.price) + ' / night';
   modalRoomType.value = r.id;
   document.querySelector('#bookingForm [name=budget]').value = r.price;
+  // Prefill from the logged-in user's profile
+  if(currentProfile){
+    if(!bookingForm.fullname.value) bookingForm.fullname.value = currentProfile.full_name || '';
+    if(!bookingForm.email.value)    bookingForm.email.value    = currentProfile.email || '';
+    if(!bookingForm.mobile.value)   bookingForm.mobile.value   = currentProfile.phone || '';
+  }
   modal.classList.add('show');
   document.body.style.overflow='hidden';
 }
 function closeModal(){ modal.classList.remove('show'); document.body.style.overflow=''; clearErrors(); }
 
 roomsGrid.addEventListener('click', e=>{
-  if(e.target.classList.contains('book-btn')) openModal(e.target.dataset.id);
+  if(e.target.classList.contains('book-btn')){
+    if(!currentUser){
+      showToast('Please login to book a room');
+      setTimeout(()=>location.href='login.html', 900);
+      return;
+    }
+    openModal(e.target.dataset.id);
+  }
 });
 document.getElementById('modalClose').addEventListener('click', closeModal);
 modal.addEventListener('click', e=>{ if(e.target===modal) closeModal(); });
@@ -538,9 +556,14 @@ modalRoomType.addEventListener('change', ()=>{
 function clearErrors(){ bookingForm.querySelectorAll('.fg').forEach(f=>f.classList.remove('invalid')); }
 function setErr(name, on){ const el=bookingForm.querySelector(`[name=${name}]`); if(el) el.closest('.fg').classList.toggle('invalid', on); }
 
-bookingForm.addEventListener('submit', e=>{
+bookingForm.addEventListener('submit', async e=>{
   e.preventDefault();
   clearErrors();
+  if(!currentUser){
+    showToast('Please login to book a room');
+    setTimeout(()=>location.href='login.html', 900);
+    return;
+  }
   const f = bookingForm;
   const data = {
     fullname: f.fullname.value.trim(),
@@ -563,80 +586,65 @@ bookingForm.addEventListener('submit', e=>{
   const room = ROOMS.find(r=>r.id===data.roomtype);
   const nights = Math.max(1, Math.round((new Date(data.checkout)-new Date(data.checkin))/86400000));
   const booking = {
-    ...data,
-    roomName: room.name,
-    img: room.img,
+    ref: 'BN' + Date.now().toString().slice(-8),
+    user_id: currentUser.id,
+    full_name: data.fullname,
+    email: data.email,
+    mobile: data.mobile,
+    check_in: data.checkin,
+    check_out: data.checkout,
+    room_type: data.roomtype,
+    room_name: room.name,
     price: room.price,
     nights,
     total: room.price*nights,
-    ref: 'BN' + Date.now().toString().slice(-8),
-    created: new Date().toISOString()
+    budget: data.budget ? Number(data.budget) : null
   };
-  const all = getBookings();
-  all.unshift(booking);
-  localStorage.setItem('booknest_bookings', JSON.stringify(all));
+
+  // Save to Supabase (tied to this user)
+  const { error } = await sb.from('bookings').insert(booking);
+  if(error){
+    console.error('Supabase booking error:', error);
+    showToast('Booking failed: ' + error.message);
+    return;
+  }
   closeModal();
   bookingForm.reset();
-  renderBookings();
   showToast(`Booking confirmed! Ref ${booking.ref}`);
+  await renderBookings();
   document.getElementById('bookings').scrollIntoView({behavior:'smooth'});
-
-  // Save to Supabase
-  if (sb) {
-    sb.from('bookings').insert({
-      ref: booking.ref,
-      full_name: booking.fullname,
-      email: booking.email,
-      mobile: booking.mobile,
-      check_in: booking.checkin,
-      check_out: booking.checkout,
-      room_type: booking.roomtype,
-      room_name: booking.roomName,
-      price: booking.price,
-      nights: booking.nights,
-      total: booking.total,
-      budget: booking.budget ? Number(booking.budget) : null
-    }).then(({error}) => {
-      if (error) { console.error('Supabase booking error:', error); showToast('Saved locally (cloud sync failed)'); }
-    });
-  }
 });
 
-// ---------- Bookings storage ----------
-function getBookings(){ try{ return JSON.parse(localStorage.getItem('booknest_bookings'))||[]; }catch{ return []; } }
+// ---------- Bookings (per logged-in user, from Supabase) ----------
 const bookingsWrap = document.getElementById('bookingsWrap');
+const roomImg = type => (ROOMS.find(r=>r.id===type)||{}).img || 'ScVZdx2Y_400x400.jpg';
 
-function renderBookings(){
-  const all = getBookings();
-  if(!all.length){
+async function renderBookings(){
+  if(!currentUser){
+    bookingsWrap.innerHTML = `<div class="empty">🔒 Please <a href="login.html" style="color:var(--green);font-weight:600">login</a> to view and save your bookings.</div>`;
+    return;
+  }
+  const { data:stays, error } = await sb.from('bookings')
+    .select('*').eq('user_id', currentUser.id).order('created_at',{ascending:false});
+  if(error || !stays || !stays.length){
     bookingsWrap.innerHTML = `<div class="empty">🛏️ You have no bookings yet.<br/><a href="#rooms" style="color:var(--green);font-weight:600">Browse rooms →</a></div>`;
     return;
   }
-  bookingsWrap.innerHTML = all.map((b,i)=>`
+  bookingsWrap.innerHTML = stays.map(b=>`
     <div class="booking-item">
-      <img src="${encodeURI(b.img)}" alt="${b.roomName}" />
+      <img src="${encodeURI(roomImg(b.room_type))}" alt="${b.room_name||''}" />
       <div class="bi-main">
-        <h4>${b.roomName}</h4>
-        <small>${b.checkin} → ${b.checkout} · ${b.nights} night(s) · ${b.fullname}</small>
+        <h4>${b.room_name || b.room_type}</h4>
+        <small>${b.check_in} → ${b.check_out} · ${b.nights} night(s)</small>
         <br/><span class="conf-tag">Confirmed · Ref ${b.ref}</span>
       </div>
       <div style="text-align:right">
         <div class="bi-price">${fmt(b.total)}</div>
         <small style="color:var(--muted)">${fmt(b.price)}/night</small>
       </div>
-      <button class="bi-del" data-i="${i}">Cancel</button>
-    </div>`).join('');
+    </div>`).join('')
+    + `<p style="text-align:center;margin-top:18px"><a href="profile.html" style="color:var(--green);font-weight:600">View full profile &amp; all stays →</a></p>`;
 }
-bookingsWrap.addEventListener('click', e=>{
-  if(e.target.classList.contains('bi-del')){
-    const i = +e.target.dataset.i;
-    const all = getBookings();
-    all.splice(i,1);
-    localStorage.setItem('booknest_bookings', JSON.stringify(all));
-    renderBookings();
-    showToast('Booking cancelled');
-  }
-});
 
 // ---------- Support form ----------
 const supportForm = document.getElementById('supportForm');
@@ -694,8 +702,45 @@ document.querySelectorAll('input[type=date]').forEach(d=>d.min=today);
 // ESC closes modal
 document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
 
-// initial render
-renderBookings();
+// ---------- Auth state ----------
+let currentUser = null;
+let currentProfile = null;
+
+function updateAuthUI(){
+  const authLink = document.getElementById('authLink');
+  const profileLink = document.getElementById('profileLink');
+  if(currentUser){
+    profileLink.style.display = '';
+    document.getElementById('profileName').textContent = (currentProfile?.full_name || 'Profile').split(' ')[0];
+    authLink.textContent = 'Logout';
+    authLink.classList.remove('auth-pill');
+    authLink.href = '#';
+    authLink.onclick = async (e)=>{ e.preventDefault(); await sb.auth.signOut(); location.reload(); };
+  } else {
+    profileLink.style.display = 'none';
+    authLink.textContent = 'Login';
+    authLink.classList.add('auth-pill');
+    authLink.href = 'login.html';
+    authLink.onclick = null;
+  }
+}
+
+async function initAuth(){
+  if(!sb){ renderBookings(); return; }
+  const { data:{ session } } = await sb.auth.getSession();
+  currentUser = session?.user || null;
+  if(currentUser){
+    const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).maybeSingle();
+    currentProfile = data || {
+      full_name: currentUser.user_metadata?.full_name || '',
+      email: currentUser.email,
+      phone: currentUser.user_metadata?.phone || ''
+    };
+  }
+  updateAuthUI();
+  renderBookings();
+}
+initAuth();
 </script>
 </body>
 </html>

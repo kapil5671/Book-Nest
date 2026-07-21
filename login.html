@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BookNest — Sign In / Sign Up</title>
+<link rel="icon" href="ScVZdx2Y_400x400.jpg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --green:#1c6b3f;--green-dark:#134d2d;--gold:#c99a3a;--gold-light:#e2b968;
+    --ink:#1a2b22;--muted:#6b7c72;--line:#e6ebe6;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:'Poppins',system-ui,sans-serif;color:var(--ink);min-height:100vh;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;
+    background:linear-gradient(135deg,#0d2b1a,#1c6b3f 55%,#20613a);
+  }
+  h1,h2,.brand-name{font-family:'Playfair Display',serif}
+  a{color:inherit}
+
+  /* ---------- Animated 3D background ---------- */
+  .bg-scene{position:fixed;inset:0;overflow:hidden;z-index:0;perspective:900px}
+  .orb{position:absolute;border-radius:50%;filter:blur(2px);opacity:.5;animation:float 14s ease-in-out infinite}
+  .orb.o1{width:260px;height:260px;top:-60px;left:-40px;background:radial-gradient(circle at 30% 30%,var(--gold-light),transparent 70%)}
+  .orb.o2{width:340px;height:340px;bottom:-80px;right:-60px;background:radial-gradient(circle at 30% 30%,#3fa06a,transparent 70%);animation-delay:-4s}
+  .orb.o3{width:180px;height:180px;top:40%;right:12%;background:radial-gradient(circle at 30% 30%,var(--gold),transparent 70%);animation-delay:-8s}
+  @keyframes float{0%,100%{transform:translateY(0) translateX(0)}50%{transform:translateY(-40px) translateX(20px)}}
+
+  /* Rotating 3D cube */
+  .cube-wrap{position:absolute;top:50%;left:22%;transform:translate(-50%,-50%);perspective:1000px;z-index:1}
+  .cube{position:relative;width:150px;height:150px;transform-style:preserve-3d;animation:spin 16s linear infinite}
+  @keyframes spin{from{transform:rotateX(-20deg) rotateY(0)}to{transform:rotateX(-20deg) rotateY(360deg)}}
+  .face{position:absolute;width:150px;height:150px;display:flex;align-items:center;justify-content:center;
+    border:2px solid rgba(226,185,104,.6);background:rgba(19,77,45,.55);backdrop-filter:blur(3px);
+    color:var(--gold-light);font-family:'Playfair Display',serif;font-weight:700;font-size:1.1rem;text-align:center;border-radius:12px;
+    box-shadow:inset 0 0 30px rgba(0,0,0,.3)}
+  .face img{width:70px;height:70px;border-radius:12px;background:#fff;padding:4px}
+  .f-front{transform:translateZ(75px)}
+  .f-back{transform:rotateY(180deg) translateZ(75px)}
+  .f-right{transform:rotateY(90deg) translateZ(75px)}
+  .f-left{transform:rotateY(-90deg) translateZ(75px)}
+  .f-top{transform:rotateX(90deg) translateZ(75px)}
+  .f-bottom{transform:rotateX(-90deg) translateZ(75px)}
+
+  /* ---------- Auth card (3D flip) ---------- */
+  .stage{position:relative;z-index:5;width:min(440px,92vw);perspective:1600px;margin-left:auto;margin-right:6vw}
+  .flipper{position:relative;width:100%;transition:transform .8s cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d;min-height:520px}
+  .flipper.flipped{transform:rotateY(180deg)}
+  .panel{
+    position:absolute;inset:0;backface-visibility:hidden;
+    background:rgba(255,255,255,.97);border-radius:22px;padding:34px 30px;
+    box-shadow:0 30px 70px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.5);
+    display:flex;flex-direction:column;
+  }
+  .panel.back{transform:rotateY(180deg)}
+  .logo-row{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:6px}
+  .logo-row img{width:46px;height:46px;border-radius:11px;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+  .brand-name{font-size:1.5rem;font-weight:800}
+  .brand-name .b{color:var(--green)}.brand-name .n{color:var(--gold)}
+  .panel h2{text-align:center;color:var(--green-dark);font-size:1.7rem;margin:10px 0 4px}
+  .panel .sub{text-align:center;color:var(--muted);font-size:.9rem;margin-bottom:20px}
+  .fg{margin-bottom:14px}
+  .fg label{display:block;font-size:.82rem;font-weight:500;margin-bottom:5px;color:var(--ink)}
+  .fg input{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:11px;font-family:inherit;font-size:.95rem;outline:none;transition:.2s;background:#fbfdfb}
+  .fg input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(28,107,63,.13)}
+  .btn{width:100%;background:linear-gradient(120deg,var(--green),var(--green-dark));color:#fff;border:none;padding:14px;border-radius:11px;font-weight:600;font-size:1rem;cursor:pointer;transition:.2s;font-family:inherit;margin-top:4px}
+  .btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+  .switch{text-align:center;margin-top:16px;font-size:.9rem;color:var(--muted)}
+  .switch a{color:var(--green);font-weight:600;cursor:pointer;text-decoration:none}
+  .switch a:hover{text-decoration:underline}
+  .msg{padding:11px 14px;border-radius:10px;font-size:.85rem;margin-bottom:14px;display:none}
+  .msg.show{display:block}
+  .msg.err{background:#fdeaea;color:#c0392b;border:1px solid #f2c4c4}
+  .msg.ok{background:#e4f3ea;color:var(--green-dark);border:1px solid #bfe0cd}
+  .home-link{position:fixed;top:18px;left:22px;z-index:10;color:#eaf3ed;font-size:.9rem;text-decoration:none;display:flex;align-items:center;gap:6px;opacity:.9}
+  .home-link:hover{opacity:1}
+  .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-3px;margin-right:8px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  @media(max-width:820px){
+    .cube-wrap{display:none}
+    .stage{margin:0 auto}
+    body{padding:20px}
+  }
+</style>
+</head>
+<body>
+  <a href="index.html" class="home-link">← Back to BookNest</a>
+
+  <div class="bg-scene">
+    <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+    <div class="cube-wrap">
+      <div class="cube">
+        <div class="face f-front"><img src="ScVZdx2Y_400x400.jpg" alt="BookNest"/></div>
+        <div class="face f-back">Rest Easy,<br/>Stay Beautifully</div>
+        <div class="face f-right">Book<br/>Nest</div>
+        <div class="face f-left">Your<br/>Perfect Stay</div>
+        <div class="face f-top">Luxury<br/>Rooms</div>
+        <div class="face f-bottom">Welcome</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="flipper" id="flipper">
+
+      <!-- ===== SIGN IN (front) ===== -->
+      <section class="panel front">
+        <div class="logo-row">
+          <img src="ScVZdx2Y_400x400.jpg" alt="BookNest"/>
+          <span class="brand-name"><span class="b">Book</span><span class="n">Nest</span></span>
+        </div>
+        <h2>Welcome Back</h2>
+        <p class="sub">Sign in to see your bookings &amp; stays</p>
+        <div class="msg" id="inMsg"></div>
+        <form id="signInForm">
+          <div class="fg"><label>Email</label><input type="email" name="email" required placeholder="you@example.com" autocomplete="email"/></div>
+          <div class="fg"><label>Password</label><input type="password" name="password" required placeholder="••••••••" autocomplete="current-password"/></div>
+          <button class="btn" type="submit" id="inBtn">Sign In</button>
+        </form>
+        <p class="switch">New to BookNest? <a id="toSignUp">Create an account</a></p>
+      </section>
+
+      <!-- ===== SIGN UP (back) ===== -->
+      <section class="panel back">
+        <div class="logo-row">
+          <img src="ScVZdx2Y_400x400.jpg" alt="BookNest"/>
+          <span class="brand-name"><span class="b">Book</span><span class="n">Nest</span></span>
+        </div>
+        <h2>Create Account</h2>
+        <p class="sub">Join BookNest and start booking</p>
+        <div class="msg" id="upMsg"></div>
+        <form id="signUpForm">
+          <div class="fg"><label>Full Name</label><input type="text" name="full_name" required placeholder="Your name"/></div>
+          <div class="fg"><label>Email</label><input type="email" name="email" required placeholder="you@example.com" autocomplete="email"/></div>
+          <div class="fg"><label>Mobile Number</label><input type="tel" name="phone" required placeholder="10-digit mobile"/></div>
+          <div class="fg"><label>Password</label><input type="password" name="password" required minlength="6" placeholder="At least 6 characters" autocomplete="new-password"/></div>
+          <button class="btn" type="submit" id="upBtn">Sign Up</button>
+        </form>
+        <p class="switch">Already have an account? <a id="toSignIn">Sign in</a></p>
+      </section>
+
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://zbbzxayolamexndbtpox.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_J_Xd5Ft8BtG1Ev7IixUGLg_HifPfCeq';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // If already logged in, go straight to profile
+  sb.auth.getSession().then(({data})=>{ if(data.session) location.replace('profile.html'); });
+
+  // Flip handling
+  const flipper = document.getElementById('flipper');
+  document.getElementById('toSignUp').onclick = ()=>flipper.classList.add('flipped');
+  document.getElementById('toSignIn').onclick = ()=>flipper.classList.remove('flipped');
+
+  function showMsg(el, text, type){ el.textContent=text; el.className='msg show '+type; }
+  function loading(btn, on, label){ btn.disabled=on; btn.innerHTML = on ? '<span class="spinner"></span>Please wait…' : label; }
+
+  // ---- Sign Up ----
+  document.getElementById('signUpForm').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const f = e.target;
+    const full_name = f.full_name.value.trim();
+    const email = f.email.value.trim();
+    const phone = f.phone.value.trim();
+    const password = f.password.value;
+    if(!/^\d{10}$/.test(phone.replace(/\D/g,'').slice(-10)) || phone.replace(/\D/g,'').length<10){
+      return showMsg(document.getElementById('upMsg'),'Please enter a valid 10-digit mobile number','err');
+    }
+    loading(document.getElementById('upBtn'), true, 'Sign Up');
+    const { data, error } = await sb.auth.signUp({
+      email, password, options:{ data:{ full_name, phone } }
+    });
+    if(error){
+      loading(document.getElementById('upBtn'), false, 'Sign Up');
+      return showMsg(document.getElementById('upMsg'), error.message, 'err');
+    }
+    // ensure a session (in case confirmation is on) by signing in
+    if(!data.session){
+      const si = await sb.auth.signInWithPassword({ email, password });
+      if(si.error){
+        loading(document.getElementById('upBtn'), false, 'Sign Up');
+        return showMsg(document.getElementById('upMsg'),'Account created! Please sign in.','ok');
+      }
+    }
+    showMsg(document.getElementById('upMsg'),'Account created! Opening your profile…','ok');
+    setTimeout(()=>location.replace('profile.html'), 700);
+  });
+
+  // ---- Sign In ----
+  document.getElementById('signInForm').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const f = e.target;
+    const email = f.email.value.trim();
+    const password = f.password.value;
+    loading(document.getElementById('inBtn'), true, 'Sign In');
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    if(error){
+      loading(document.getElementById('inBtn'), false, 'Sign In');
+      return showMsg(document.getElementById('inMsg'),
+        error.message.includes('Invalid') ? 'Incorrect email or password.' : error.message, 'err');
+    }
+    showMsg(document.getElementById('inMsg'),'Welcome back! Opening your profile…','ok');
+    setTimeout(()=>location.replace('profile.html'), 500);
+  });
+</script>
+</body>
+</html>
