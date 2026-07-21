@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BookNest — Find Your Perfect Stay</title>
+<link rel="icon" href="ScVZdx2Y_400x400.jpg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --green:#1c6b3f;
+    --green-dark:#134d2d;
+    --gold:#c99a3a;
+    --gold-light:#e2b968;
+    --ink:#1a2b22;
+    --muted:#6b7c72;
+    --bg:#f5f7f4;
+    --card:#ffffff;
+    --line:#e6ebe6;
+    --shadow:0 10px 30px rgba(19,77,45,.12);
+    --shadow-sm:0 4px 14px rgba(0,0,0,.08);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    color:var(--ink);background:var(--bg);line-height:1.6;
+  }
+  h1,h2,h3,.brand-name{font-family:'Playfair Display',Georgia,serif}
+  a{text-decoration:none;color:inherit}
+  img{max-width:100%;display:block}
+  .container{width:min(1200px,92%);margin:0 auto}
+
+  /* ---------- Header ---------- */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:linear-gradient(120deg,var(--green-dark) 0%,var(--green) 55%,#20613a 100%);
+    box-shadow:0 6px 24px rgba(19,77,45,.35);
+    border-bottom:3px solid var(--gold);
+  }
+  .nav{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:12px 0}
+  nav.links{display:flex;gap:6px;flex-wrap:wrap}
+  nav.links a{
+    padding:9px 16px;border-radius:30px;font-weight:500;font-size:.95rem;
+    color:#eaf3ed;transition:.2s;
+  }
+  nav.links a:hover{background:var(--gold);color:#231a06;box-shadow:0 4px 12px rgba(201,154,58,.45)}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand img{width:52px;height:52px;border-radius:12px;background:#fff;padding:3px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+  .brand-name{font-size:1.7rem;font-weight:800;letter-spacing:.5px;text-shadow:0 2px 8px rgba(0,0,0,.25)}
+  .brand-name .b{color:#ffffff}
+  .brand-name .n{color:var(--gold-light)}
+  .menu-btn{display:none;background:var(--gold);color:#231a06;border:none;padding:10px 14px;border-radius:10px;font-size:1.1rem;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative;min-height:82vh;display:flex;align-items:center;
+    background:linear-gradient(rgba(15,45,28,.55),rgba(15,45,28,.65)),
+      url('Pushp-Dwaar-Blooming-Meadows-Wallpaper-Mural-M2-710x488.jpg') center/cover fixed;
+    color:#fff;text-align:center;padding:70px 0;
+  }
+  .hero-inner{width:min(900px,92%);margin:0 auto}
+  .hero .eyebrow{
+    display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);
+    padding:6px 18px;border-radius:30px;font-size:.85rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:20px
+  }
+  .hero h1{font-size:clamp(2.4rem,6vw,4.2rem);line-height:1.1;margin-bottom:18px;text-shadow:0 4px 20px rgba(0,0,0,.4)}
+  .hero p{font-size:clamp(1rem,2.2vw,1.25rem);opacity:.95;max-width:620px;margin:0 auto 34px}
+  .hero .cta{
+    display:inline-block;background:var(--gold);color:#231a06;font-weight:600;
+    padding:15px 38px;border-radius:12px;font-size:1.05rem;transition:.25s;box-shadow:0 8px 24px rgba(201,154,58,.5)
+  }
+  .hero .cta:hover{background:var(--gold-light);transform:translateY(-2px)}
+
+  /* ---------- Search bar (booking.com style) ---------- */
+  .searchbar{
+    width:min(1100px,92%);margin:-42px auto 0;position:relative;z-index:5;
+    background:var(--gold);border-radius:16px;padding:6px;box-shadow:var(--shadow);
+  }
+  .searchbar form{
+    display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr auto;gap:6px;
+    background:#fff;border-radius:12px;padding:8px;
+  }
+  .searchbar .field{display:flex;flex-direction:column;padding:8px 12px;border-right:1px solid var(--line)}
+  .searchbar .field:last-of-type{border-right:none}
+  .searchbar label{font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  .searchbar input,.searchbar select{border:none;outline:none;font-family:inherit;font-size:.95rem;color:var(--ink);background:transparent;padding:2px 0}
+  .searchbar .go{
+    background:var(--green);color:#fff;border:none;border-radius:10px;padding:0 30px;font-weight:600;font-size:1rem;cursor:pointer;transition:.2s
+  }
+  .searchbar .go:hover{background:var(--green-dark)}
+
+  /* ---------- Sections ---------- */
+  section{padding:72px 0}
+  .section-head{text-align:center;max-width:680px;margin:0 auto 46px}
+  .section-head .kicker{color:var(--gold);font-weight:600;letter-spacing:3px;text-transform:uppercase;font-size:.8rem}
+  .section-head h2{font-size:clamp(1.8rem,4vw,2.6rem);margin:8px 0 12px;color:var(--green-dark)}
+  .section-head p{color:var(--muted)}
+
+  /* About */
+  #about{background:#fff}
+  .about-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center}
+  .about-grid img{border-radius:18px;box-shadow:var(--shadow);height:100%;object-fit:cover}
+  .about-text h2{font-size:clamp(1.8rem,4vw,2.6rem);color:var(--green-dark);margin-bottom:16px}
+  .about-text p{color:var(--muted);margin-bottom:16px}
+  .stats{display:flex;gap:34px;margin-top:26px;flex-wrap:wrap}
+  .stat b{font-size:1.9rem;color:var(--green);font-family:'Playfair Display',serif}
+  .stat span{display:block;color:var(--muted);font-size:.9rem}
+
+  /* Rooms */
+  .rooms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:26px}
+  .room-card{
+    background:var(--card);border-radius:18px;overflow:hidden;box-shadow:var(--shadow-sm);
+    border:1px solid var(--line);transition:.28s;display:flex;flex-direction:column
+  }
+  .room-card:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+  .room-media{position:relative;aspect-ratio:16/10;overflow:hidden}
+  .room-media img{width:100%;height:100%;object-fit:cover;transition:.5s}
+  .room-card:hover .room-media img{transform:scale(1.07)}
+  .room-badge{position:absolute;top:12px;left:12px;background:var(--gold);color:#231a06;padding:5px 12px;border-radius:20px;font-size:.78rem;font-weight:600}
+  .room-rating{position:absolute;top:12px;right:12px;background:var(--green-dark);color:#fff;padding:5px 10px;border-radius:8px;font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:4px}
+  .room-body{padding:18px 20px 22px;display:flex;flex-direction:column;flex:1}
+  .room-body h3{font-size:1.25rem;color:var(--ink);margin-bottom:6px}
+  .room-meta{color:var(--muted);font-size:.86rem;margin-bottom:12px}
+  .room-amen{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+  .room-amen span{background:var(--bg);border:1px solid var(--line);color:var(--muted);font-size:.75rem;padding:3px 10px;border-radius:20px}
+  .room-foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .price b{font-size:1.5rem;color:var(--green-dark);font-family:'Playfair Display',serif}
+  .price span{color:var(--muted);font-size:.82rem}
+  .book-btn{background:var(--green);color:#fff;border:none;padding:11px 20px;border-radius:10px;font-weight:600;cursor:pointer;transition:.2s;font-family:inherit}
+  .book-btn:hover{background:var(--green-dark)}
+
+  /* Experience / video */
+  #experience{background:linear-gradient(135deg,var(--green-dark),var(--green));color:#fff}
+  .exp-grid{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center}
+  .exp-grid video{width:100%;border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+  .exp-text h2{font-size:clamp(1.8rem,4vw,2.6rem);margin-bottom:16px}
+  .exp-text p{opacity:.9;margin-bottom:14px}
+  .exp-text .cta{display:inline-block;margin-top:10px;background:var(--gold);color:#231a06;padding:13px 30px;border-radius:12px;font-weight:600;transition:.2s}
+  .exp-text .cta:hover{background:var(--gold-light)}
+
+  /* Your Bookings */
+  #bookings{background:#fff}
+  .bookings-wrap{max-width:900px;margin:0 auto}
+  .empty{text-align:center;color:var(--muted);padding:40px;border:2px dashed var(--line);border-radius:16px}
+  .booking-item{
+    display:flex;gap:16px;align-items:center;background:var(--bg);border:1px solid var(--line);
+    border-radius:14px;padding:14px 16px;margin-bottom:14px;flex-wrap:wrap
+  }
+  .booking-item img{width:90px;height:70px;border-radius:10px;object-fit:cover}
+  .booking-item .bi-main{flex:1;min-width:180px}
+  .booking-item .bi-main h4{font-family:'Poppins';font-size:1.05rem;color:var(--green-dark)}
+  .booking-item .bi-main small{color:var(--muted)}
+  .booking-item .bi-price{font-weight:700;color:var(--green)}
+  .booking-item .bi-del{background:none;border:1px solid #e3b1b1;color:#c0392b;border-radius:8px;padding:7px 12px;cursor:pointer;font-family:inherit;font-size:.82rem}
+  .booking-item .bi-del:hover{background:#c0392b;color:#fff}
+  .conf-tag{display:inline-block;background:#e4f3ea;color:var(--green-dark);font-size:.72rem;font-weight:600;padding:2px 10px;border-radius:20px;margin-top:4px}
+
+  /* Support */
+  #support{background:var(--bg)}
+  .support-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:44px;align-items:start}
+  .support-info h2{color:var(--green-dark);font-size:clamp(1.8rem,4vw,2.6rem);margin-bottom:14px}
+  .support-info p{color:var(--muted);margin-bottom:20px}
+  .support-info li{list-style:none;margin-bottom:14px;color:var(--ink);display:flex;gap:12px;align-items:flex-start}
+  .support-info li b{color:var(--green)}
+  .form-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:28px;box-shadow:var(--shadow-sm)}
+  .form-card h3{color:var(--green-dark);margin-bottom:6px}
+  .form-card>p{color:var(--muted);font-size:.9rem;margin-bottom:18px}
+  .fg{margin-bottom:16px}
+  .fg label{display:block;font-size:.85rem;font-weight:500;margin-bottom:6px}
+  .fg input,.fg select,.fg textarea{
+    width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:.95rem;outline:none;transition:.2s;background:#fff
+  }
+  .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(28,107,63,.12)}
+  .fg textarea{resize:vertical;min-height:110px}
+  .submit-btn{width:100%;background:var(--green);color:#fff;border:none;padding:14px;border-radius:10px;font-weight:600;font-size:1rem;cursor:pointer;transition:.2s;font-family:inherit}
+  .submit-btn:hover{background:var(--green-dark)}
+  .ok-msg{background:#e4f3ea;color:var(--green-dark);border:1px solid #bfe0cd;padding:12px 14px;border-radius:10px;margin-bottom:16px;font-size:.9rem;display:none}
+  .ok-msg.show{display:block}
+
+  /* Footer */
+  footer{background:var(--green-dark);color:#d9e6dd;padding:50px 0 24px}
+  .foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:34px;margin-bottom:30px}
+  .foot-brand{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .foot-brand img{width:44px;border-radius:10px}
+  .foot-brand span{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:#fff}
+  footer h4{color:#fff;margin-bottom:14px;font-family:'Poppins';font-size:1rem}
+  footer a,footer li{color:#b9ccbf;display:block;margin-bottom:9px;font-size:.9rem;list-style:none}
+  footer a:hover{color:var(--gold-light)}
+  .copy{border-top:1px solid rgba(255,255,255,.15);padding-top:20px;text-align:center;font-size:.85rem;color:#9fb6a6}
+
+  /* Modal */
+  .modal{position:fixed;inset:0;background:rgba(15,45,28,.6);backdrop-filter:blur(4px);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:30px 16px;overflow-y:auto}
+  .modal.show{display:flex}
+  .modal-card{background:#fff;border-radius:20px;width:min(560px,100%);box-shadow:0 30px 70px rgba(0,0,0,.35);overflow:hidden;animation:pop .3s ease}
+  @keyframes pop{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+  .modal-head{position:relative;padding:0}
+  .modal-head img{width:100%;height:150px;object-fit:cover}
+  .modal-head .mh-overlay{position:absolute;inset:0;background:linear-gradient(transparent,rgba(0,0,0,.7));display:flex;align-items:flex-end;padding:16px 22px}
+  .modal-head h3{color:#fff;font-size:1.5rem}
+  .modal-head .close{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.5);color:#fff;border:none;width:36px;height:36px;border-radius:50%;font-size:1.2rem;cursor:pointer;line-height:1}
+  .modal-body{padding:24px}
+  .modal-body .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .price-note{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:.9rem;color:var(--muted);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+  .price-note b{color:var(--green-dark);font-size:1.1rem}
+  .err{color:#c0392b;font-size:.78rem;margin-top:4px;display:none}
+  .fg.invalid input,.fg.invalid select{border-color:#c0392b}
+  .fg.invalid .err{display:block}
+
+  /* Toast */
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--green-dark);color:#fff;padding:14px 26px;border-radius:12px;box-shadow:var(--shadow);z-index:200;transition:.4s;font-weight:500}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+
+  /* Responsive */
+  @media(max-width:900px){
+    .about-grid,.exp-grid,.support-grid{grid-template-columns:1fr}
+    .exp-grid video{order:-1}
+    .searchbar form{grid-template-columns:1fr 1fr}
+    .foot-grid{grid-template-columns:1fr}
+  }
+  @media(max-width:680px){
+    nav.links{display:none;position:absolute;top:76px;left:0;right:0;background:var(--green-dark);flex-direction:column;padding:10px 16px;box-shadow:var(--shadow);border-bottom:3px solid var(--gold)}
+    nav.links.open{display:flex}
+    nav.links a{width:100%}
+    .menu-btn{display:block}
+    .searchbar form{grid-template-columns:1fr}
+    .modal-body .row{grid-template-columns:1fr}
+    .hero{background-attachment:scroll}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header>
+  <div class="container nav">
+    <button class="menu-btn" id="menuBtn">☰</button>
+    <nav class="links" id="navLinks">
+      <a href="#home">Home</a>
+      <a href="#about">About</a>
+      <a href="#rooms">Rooms</a>
+      <a href="#bookings">Your Booking</a>
+      <a href="#support">Support</a>
+    </nav>
+    <a href="#home" class="brand">
+      <span class="brand-name"><span class="b">Book</span><span class="n">Nest</span></span>
+      <img src="ScVZdx2Y_400x400.jpg" alt="BookNest logo" />
+    </a>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="home">
+  <div class="hero-inner">
+    <span class="eyebrow">Luxury Stays · Handpicked Rooms</span>
+    <h1>Rest Easy, Stay Beautifully</h1>
+    <p>Discover handpicked rooms and elegant suites at BookNest. From heritage retreats to modern lofts — book your perfect nest in seconds.</p>
+    <a href="#rooms" class="cta">Explore Rooms</a>
+  </div>
+</section>
+
+<!-- ============ SEARCH BAR ============ -->
+<div class="searchbar">
+  <form id="searchForm">
+    <div class="field">
+      <label>Destination</label>
+      <input type="text" value="Pune, India" placeholder="Where are you going?" />
+    </div>
+    <div class="field">
+      <label>Check-in</label>
+      <input type="date" id="searchIn" />
+    </div>
+    <div class="field">
+      <label>Check-out</label>
+      <input type="date" id="searchOut" />
+    </div>
+    <div class="field">
+      <label>Guests</label>
+      <select>
+        <option>1 guest</option>
+        <option selected>2 guests</option>
+        <option>3 guests</option>
+        <option>4+ guests</option>
+      </select>
+    </div>
+    <button class="go" type="submit">Search</button>
+  </form>
+</div>
+
+<!-- ============ ABOUT ============ -->
+<section id="about">
+  <div class="container about-grid">
+    <img src="stylish-living-room-with-expansive-windows-in-a-bright-open-layout-photo.jpg" alt="Beautiful room at BookNest" />
+    <div class="about-text">
+      <span class="section-head kicker" style="display:block;margin-bottom:6px">About BookNest</span>
+      <h2>Your cozy nest, wherever you roam</h2>
+      <p>BookNest is a boutique hotel booking platform built to make finding a beautiful place to stay effortless. We curate a collection of thoughtfully designed rooms — from serene heritage suites to bright modern lofts — so every guest feels instantly at home.</p>
+      <p>Transparent pricing, instant confirmation, and rooms we'd happily stay in ourselves. No hidden fees, no surprises — just a warm, comfortable nest waiting for you.</p>
+      <div class="stats">
+        <div class="stat"><b>9+</b><span>Curated Rooms</span></div>
+        <div class="stat"><b>24/7</b><span>Guest Support</span></div>
+        <div class="stat"><b>4.8★</b><span>Avg. Rating</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ROOMS ============ -->
+<section id="rooms" style="background:var(--bg)">
+  <div class="container">
+    <div class="section-head">
+      <span class="kicker">Available Now</span>
+      <h2>Rooms &amp; Suites Available</h2>
+      <p>Real-time availability across our finest rooms. Pick your favourite and book in under a minute.</p>
+    </div>
+    <div class="rooms-grid" id="roomsGrid"><!-- injected by JS --></div>
+  </div>
+</section>
+
+<!-- ============ EXPERIENCE / VIDEO ============ -->
+<section id="experience">
+  <div class="container exp-grid">
+    <div class="exp-text">
+      <span class="section-head kicker" style="display:block;color:var(--gold-light);margin-bottom:6px">The BookNest Experience</span>
+      <h2>Step inside pure elegance</h2>
+      <p>Every BookNest room is a retreat. Plush interiors, warm lighting, and views that make you want to stay a little longer. Take a peek at the calm that awaits.</p>
+      <p>Book with confidence — free cancellation on most rooms and instant confirmation to your inbox.</p>
+      <a href="#rooms" class="cta">Book Your Stay</a>
+    </div>
+    <video autoplay muted loop playsinline poster="ed8a8f510b0929d16f8959e3f5d10e68.jpg">
+      <source src="Room_In_The_Palace_Of_Iturbide_Mexico_5013e.mp4" type="video/mp4" />
+    </video>
+  </div>
+</section>
+
+<!-- ============ YOUR BOOKINGS ============ -->
+<section id="bookings">
+  <div class="container">
+    <div class="section-head">
+      <span class="kicker">My Trips</span>
+      <h2>Your Bookings</h2>
+      <p>All your reserved rooms in one place. Bookings are saved on this device.</p>
+    </div>
+    <div class="bookings-wrap" id="bookingsWrap"><!-- injected by JS --></div>
+  </div>
+</section>
+
+<!-- ============ SUPPORT ============ -->
+<section id="support">
+  <div class="container support-grid">
+    <div class="support-info">
+      <span class="section-head kicker" style="display:block;margin-bottom:6px">We're here to help</span>
+      <h2>Support</h2>
+      <p>Facing an issue with a booking or need help choosing a room? Send us your problem and our team will get back to you within 24 hours.</p>
+      <ul>
+        <li><b>✆</b><span><b>Call us:</b> +91 98765 43210 (24/7)</span></li>
+        <li><b>✉</b><span><b>Email:</b> care@booknest.com</span></li>
+        <li><b>⌂</b><span><b>Office:</b> FC Road, Pune, Maharashtra, India</span></li>
+      </ul>
+    </div>
+    <div class="form-card">
+      <h3>Submit your problem</h3>
+      <p>Fill in the form below and we'll sort it out for you.</p>
+      <div class="ok-msg" id="supportOk">✓ Thanks! Your request has been submitted. Our team will contact you shortly.</div>
+      <form id="supportForm">
+        <div class="fg"><label>Full Name</label><input type="text" name="name" required placeholder="Your name" /></div>
+        <div class="fg"><label>Email</label><input type="email" name="email" required placeholder="you@example.com" /></div>
+        <div class="fg"><label>Subject</label>
+          <select name="subject">
+            <option>Booking issue</option>
+            <option>Payment / refund</option>
+            <option>Room availability</option>
+            <option>General enquiry</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="fg"><label>Describe your problem</label><textarea name="message" required placeholder="Tell us what went wrong..."></textarea></div>
+        <button class="submit-btn" type="submit">Submit Request</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">
+          <img src="ScVZdx2Y_400x400.jpg" alt="BookNest" />
+          <span>BookNest</span>
+        </div>
+        <p style="color:#b9ccbf;font-size:.9rem;max-width:320px">Handpicked rooms and elegant suites for every kind of traveller. Rest easy, stay beautifully.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#rooms">Rooms</a>
+        <a href="#bookings">Your Booking</a>
+        <a href="#support">Support</a>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul>
+          <li>+91 98765 43210</li>
+          <li>care@booknest.com</li>
+          <li>FC Road, Pune, India</li>
+        </ul>
+      </div>
+    </div>
+    <div class="copy">© 2026 BookNest. All rights reserved. Made with care for a good night's sleep.</div>
+  </div>
+</footer>
+
+<!-- ============ BOOKING MODAL ============ -->
+<div class="modal" id="bookingModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <img id="modalImg" src="" alt="" />
+      <button class="close" id="modalClose">&times;</button>
+      <div class="mh-overlay"><h3 id="modalTitle">Book Room</h3></div>
+    </div>
+    <div class="modal-body">
+      <div class="price-note">
+        <span>Price per night</span>
+        <b id="modalPrice">₹0</b>
+      </div>
+      <form id="bookingForm" novalidate>
+        <div class="fg"><label>Full Name *</label><input type="text" name="fullname" /><span class="err">Please enter your full name</span></div>
+        <div class="row">
+          <div class="fg"><label>Email *</label><input type="email" name="email" /><span class="err">Enter a valid email</span></div>
+          <div class="fg"><label>Mobile Number *</label><input type="tel" name="mobile" /><span class="err">Enter a valid 10-digit number</span></div>
+        </div>
+        <div class="row">
+          <div class="fg"><label>Check-in *</label><input type="date" name="checkin" /><span class="err">Select check-in date</span></div>
+          <div class="fg"><label>Check-out *</label><input type="date" name="checkout" /><span class="err">Check-out must be after check-in</span></div>
+        </div>
+        <div class="row">
+          <div class="fg"><label>Type of Room *</label>
+            <select name="roomtype" id="modalRoomType"></select>
+          </div>
+          <div class="fg"><label>Budget (₹) *</label><input type="number" name="budget" min="0" placeholder="e.g. 8000" /><span class="err">Enter your budget</span></div>
+        </div>
+        <button class="submit-btn" type="submit">Confirm Booking</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Supabase client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ---------- Supabase config ----------
+const SUPABASE_URL = 'https://zbbzxayolamexndbtpox.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_J_Xd5Ft8BtG1Ev7IixUGLg_HifPfCeq';
+let sb = null;
+try { if (window.supabase) sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); }
+catch (e) { console.warn('Supabase init failed', e); }
+
+// ---------- Room data ----------
+const ROOMS = [
+  {id:'heritage', name:'Royal Heritage Suite', img:'Pushp-Dwaar-Blooming-Meadows-Wallpaper-Mural-M2-710x488.jpg', price:8500, rating:4.9, badge:'Heritage', meta:'2 guests · 1 king bed · 42 m²', amen:['Free WiFi','Breakfast','AC','Balcony']},
+  {id:'grey-loft', name:'Deluxe Grey Loft', img:'2122ead425fca999868aec6814617254.jpg', price:6200, rating:4.7, badge:'Popular', meta:'3 guests · 1 sofa bed · 38 m²', amen:['Free WiFi','City View','AC','Smart TV']},
+  {id:'emerald', name:'Emerald Green Bedroom', img:'design-style-room-interior-wallpaper-preview.jpg', price:4800, rating:4.6, badge:'Value', meta:'2 guests · 1 queen bed · 30 m²', amen:['Free WiFi','Garden View','AC']},
+  {id:'mono', name:'Monochrome Luxury Suite', img:'ed8a8f510b0929d16f8959e3f5d10e68.jpg', price:9500, rating:4.9, badge:'Luxury', meta:'2 guests · 1 king bed · 48 m²', amen:['Free WiFi','Breakfast','Minibar','Sea Facing']},
+  {id:'ocean', name:'Ocean Blue Lounge Suite', img:'minimalist-living-room-adorned-with-blue-coral-reef-canvas-and-underwater-view-photo.jpeg', price:7300, rating:4.8, badge:'Trending', meta:'3 guests · 1 king + sofa · 45 m²', amen:['Free WiFi','Lounge','AC','Terrace']},
+  {id:'forest', name:'Forest View Villa', img:'stylish-living-room-with-expansive-windows-in-a-bright-open-layout-photo.jpg', price:11000, rating:5.0, badge:'Premium', meta:'4 guests · 2 beds · 60 m²', amen:['Free WiFi','Breakfast','Forest View','Kitchen']},
+  {id:'nordic', name:'Nordic Wood Bedroom', img:'images.jpg', price:3900, rating:4.5, badge:'Cozy', meta:'2 guests · 1 queen bed · 28 m²', amen:['Free WiFi','AC','Workspace']},
+  {id:'scandi', name:'Scandinavian Loft', img:'images (1).jpg', price:5400, rating:4.7, badge:'New', meta:'2 guests · 1 sofa bed · 35 m²', amen:['Free WiFi','Balcony','AC','Smart TV']},
+  {id:'twin', name:'Executive Twin Suite', img:'images (2).jpg', price:6800, rating:4.8, badge:'Business', meta:'2 guests · 2 twin beds · 40 m²', amen:['Free WiFi','Breakfast','Ensuite','Desk']},
+];
+
+const fmt = n => '₹' + Number(n).toLocaleString('en-IN');
+const roomsGrid = document.getElementById('roomsGrid');
+
+// render room cards
+roomsGrid.innerHTML = ROOMS.map(r => `
+  <article class="room-card">
+    <div class="room-media">
+      <img src="${encodeURI(r.img)}" alt="${r.name}" loading="lazy" />
+      <span class="room-badge">${r.badge}</span>
+      <span class="room-rating">★ ${r.rating}</span>
+    </div>
+    <div class="room-body">
+      <h3>${r.name}</h3>
+      <div class="room-meta">${r.meta}</div>
+      <div class="room-amen">${r.amen.map(a=>`<span>${a}</span>`).join('')}</div>
+      <div class="room-foot">
+        <div class="price"><b>${fmt(r.price)}</b> <span>/ night</span></div>
+        <button class="book-btn" data-id="${r.id}">Book Now</button>
+      </div>
+    </div>
+  </article>`).join('');
+
+// populate modal room-type select
+const modalRoomType = document.getElementById('modalRoomType');
+modalRoomType.innerHTML = ROOMS.map(r=>`<option value="${r.id}">${r.name} — ${fmt(r.price)}/night</option>`).join('');
+
+// ---------- Modal handling ----------
+const modal = document.getElementById('bookingModal');
+const modalImg = document.getElementById('modalImg');
+const modalTitle = document.getElementById('modalTitle');
+const modalPrice = document.getElementById('modalPrice');
+const bookingForm = document.getElementById('bookingForm');
+
+function openModal(roomId){
+  const r = ROOMS.find(x=>x.id===roomId) || ROOMS[0];
+  modalImg.src = encodeURI(r.img);
+  modalTitle.textContent = r.name;
+  modalPrice.textContent = fmt(r.price) + ' / night';
+  modalRoomType.value = r.id;
+  document.querySelector('#bookingForm [name=budget]').value = r.price;
+  modal.classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){ modal.classList.remove('show'); document.body.style.overflow=''; clearErrors(); }
+
+roomsGrid.addEventListener('click', e=>{
+  if(e.target.classList.contains('book-btn')) openModal(e.target.dataset.id);
+});
+document.getElementById('modalClose').addEventListener('click', closeModal);
+modal.addEventListener('click', e=>{ if(e.target===modal) closeModal(); });
+
+// update price when room type changes in modal
+modalRoomType.addEventListener('change', ()=>{
+  const r = ROOMS.find(x=>x.id===modalRoomType.value);
+  modalPrice.textContent = fmt(r.price)+' / night';
+  modalImg.src = encodeURI(r.img);
+  modalTitle.textContent = r.name;
+});
+
+// ---------- Validation + submit ----------
+function clearErrors(){ bookingForm.querySelectorAll('.fg').forEach(f=>f.classList.remove('invalid')); }
+function setErr(name, on){ const el=bookingForm.querySelector(`[name=${name}]`); if(el) el.closest('.fg').classList.toggle('invalid', on); }
+
+bookingForm.addEventListener('submit', e=>{
+  e.preventDefault();
+  clearErrors();
+  const f = bookingForm;
+  const data = {
+    fullname: f.fullname.value.trim(),
+    email: f.email.value.trim(),
+    mobile: f.mobile.value.trim(),
+    checkin: f.checkin.value,
+    checkout: f.checkout.value,
+    roomtype: f.roomtype.value,
+    budget: f.budget.value
+  };
+  let ok = true;
+  if(data.fullname.length < 2){ setErr('fullname',true); ok=false; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)){ setErr('email',true); ok=false; }
+  if(!/^\d{10}$/.test(data.mobile.replace(/\D/g,'').slice(-10)) || data.mobile.replace(/\D/g,'').length<10){ setErr('mobile',true); ok=false; }
+  if(!data.checkin){ setErr('checkin',true); ok=false; }
+  if(!data.checkout || data.checkout <= data.checkin){ setErr('checkout',true); ok=false; }
+  if(!data.budget || Number(data.budget) <= 0){ setErr('budget',true); ok=false; }
+  if(!ok) return;
+
+  const room = ROOMS.find(r=>r.id===data.roomtype);
+  const nights = Math.max(1, Math.round((new Date(data.checkout)-new Date(data.checkin))/86400000));
+  const booking = {
+    ...data,
+    roomName: room.name,
+    img: room.img,
+    price: room.price,
+    nights,
+    total: room.price*nights,
+    ref: 'BN' + Date.now().toString().slice(-8),
+    created: new Date().toISOString()
+  };
+  const all = getBookings();
+  all.unshift(booking);
+  localStorage.setItem('booknest_bookings', JSON.stringify(all));
+  closeModal();
+  bookingForm.reset();
+  renderBookings();
+  showToast(`Booking confirmed! Ref ${booking.ref}`);
+  document.getElementById('bookings').scrollIntoView({behavior:'smooth'});
+
+  // Save to Supabase
+  if (sb) {
+    sb.from('bookings').insert({
+      ref: booking.ref,
+      full_name: booking.fullname,
+      email: booking.email,
+      mobile: booking.mobile,
+      check_in: booking.checkin,
+      check_out: booking.checkout,
+      room_type: booking.roomtype,
+      room_name: booking.roomName,
+      price: booking.price,
+      nights: booking.nights,
+      total: booking.total,
+      budget: booking.budget ? Number(booking.budget) : null
+    }).then(({error}) => {
+      if (error) { console.error('Supabase booking error:', error); showToast('Saved locally (cloud sync failed)'); }
+    });
+  }
+});
+
+// ---------- Bookings storage ----------
+function getBookings(){ try{ return JSON.parse(localStorage.getItem('booknest_bookings'))||[]; }catch{ return []; } }
+const bookingsWrap = document.getElementById('bookingsWrap');
+
+function renderBookings(){
+  const all = getBookings();
+  if(!all.length){
+    bookingsWrap.innerHTML = `<div class="empty">🛏️ You have no bookings yet.<br/><a href="#rooms" style="color:var(--green);font-weight:600">Browse rooms →</a></div>`;
+    return;
+  }
+  bookingsWrap.innerHTML = all.map((b,i)=>`
+    <div class="booking-item">
+      <img src="${encodeURI(b.img)}" alt="${b.roomName}" />
+      <div class="bi-main">
+        <h4>${b.roomName}</h4>
+        <small>${b.checkin} → ${b.checkout} · ${b.nights} night(s) · ${b.fullname}</small>
+        <br/><span class="conf-tag">Confirmed · Ref ${b.ref}</span>
+      </div>
+      <div style="text-align:right">
+        <div class="bi-price">${fmt(b.total)}</div>
+        <small style="color:var(--muted)">${fmt(b.price)}/night</small>
+      </div>
+      <button class="bi-del" data-i="${i}">Cancel</button>
+    </div>`).join('');
+}
+bookingsWrap.addEventListener('click', e=>{
+  if(e.target.classList.contains('bi-del')){
+    const i = +e.target.dataset.i;
+    const all = getBookings();
+    all.splice(i,1);
+    localStorage.setItem('booknest_bookings', JSON.stringify(all));
+    renderBookings();
+    showToast('Booking cancelled');
+  }
+});
+
+// ---------- Support form ----------
+const supportForm = document.getElementById('supportForm');
+supportForm.addEventListener('submit', e=>{
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(supportForm));
+  data.created = new Date().toISOString();
+  const all = JSON.parse(localStorage.getItem('booknest_support')||'[]');
+  all.unshift(data);
+  localStorage.setItem('booknest_support', JSON.stringify(all));
+  supportForm.reset();
+  document.getElementById('supportOk').classList.add('show');
+  showToast('Support request submitted');
+  setTimeout(()=>document.getElementById('supportOk').classList.remove('show'), 6000);
+
+  // Save to Supabase
+  if (sb) {
+    sb.from('support_requests').insert({
+      name: data.name,
+      email: data.email,
+      subject: data.subject,
+      message: data.message
+    }).then(({error}) => {
+      if (error) { console.error('Supabase support error:', error); showToast('Saved locally (cloud sync failed)'); }
+    });
+  }
+});
+
+// ---------- Search bar ----------
+document.getElementById('searchForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  document.getElementById('rooms').scrollIntoView({behavior:'smooth'});
+  showToast('Showing available rooms for your dates');
+});
+
+// ---------- Toast ----------
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 3200);
+}
+
+// ---------- Mobile menu ----------
+const navLinks = document.getElementById('navLinks');
+document.getElementById('menuBtn').addEventListener('click', ()=>navLinks.classList.toggle('open'));
+navLinks.addEventListener('click', e=>{ if(e.target.tagName==='A') navLinks.classList.remove('open'); });
+
+// ---------- Date defaults / min ----------
+const today = new Date().toISOString().split('T')[0];
+document.querySelectorAll('input[type=date]').forEach(d=>d.min=today);
+
+// ESC closes modal
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+// initial render
+renderBookings();
+</script>
+</body>
+</html>
