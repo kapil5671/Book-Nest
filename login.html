@@ -67,6 +67,12 @@
   .fg label{display:block;font-size:.82rem;font-weight:500;margin-bottom:5px;color:var(--ink)}
   .fg input{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:11px;font-family:inherit;font-size:.95rem;outline:none;transition:.2s;background:#fbfdfb}
   .fg input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(28,107,63,.13)}
+  .pw-wrap{position:relative}
+  .pw-wrap input{padding-right:46px}
+  .pw-toggle{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;
+    cursor:pointer;padding:8px;color:var(--muted);display:flex;align-items:center;border-radius:8px;transition:.15s}
+  .pw-toggle:hover{color:var(--green);background:rgba(28,107,63,.08)}
+  .pw-toggle svg{width:20px;height:20px}
   .btn{width:100%;background:linear-gradient(120deg,var(--green),var(--green-dark));color:#fff;border:none;padding:14px;border-radius:11px;font-weight:600;font-size:1rem;cursor:pointer;transition:.2s;font-family:inherit;margin-top:4px}
   .btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
   .btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
@@ -120,7 +126,12 @@
         <div class="msg" id="inMsg"></div>
         <form id="signInForm">
           <div class="fg"><label>Email</label><input type="email" name="email" required placeholder="you@example.com" autocomplete="email"/></div>
-          <div class="fg"><label>Password</label><input type="password" name="password" required placeholder="••••••••" autocomplete="current-password"/></div>
+          <div class="fg"><label>Password</label>
+            <div class="pw-wrap">
+              <input type="password" name="password" required placeholder="••••••••" autocomplete="current-password"/>
+              <button type="button" class="pw-toggle" aria-label="Show password"></button>
+            </div>
+          </div>
           <button class="btn" type="submit" id="inBtn">Sign In</button>
         </form>
         <p class="switch">New to BookNest? <a id="toSignUp">Create an account</a></p>
@@ -139,7 +150,12 @@
           <div class="fg"><label>Full Name</label><input type="text" name="full_name" required placeholder="Your name"/></div>
           <div class="fg"><label>Email</label><input type="email" name="email" required placeholder="you@example.com" autocomplete="email"/></div>
           <div class="fg"><label>Mobile Number</label><input type="tel" name="phone" required placeholder="10-digit mobile"/></div>
-          <div class="fg"><label>Password</label><input type="password" name="password" required minlength="6" placeholder="At least 6 characters" autocomplete="new-password"/></div>
+          <div class="fg"><label>Password</label>
+            <div class="pw-wrap">
+              <input type="password" name="password" required minlength="6" placeholder="At least 6 characters" autocomplete="new-password"/>
+              <button type="button" class="pw-toggle" aria-label="Show password"></button>
+            </div>
+          </div>
           <button class="btn" type="submit" id="upBtn">Sign Up</button>
         </form>
         <p class="switch">Already have an account? <a id="toSignIn">Sign in</a></p>
@@ -156,6 +172,20 @@
 
   // If already logged in, go straight to profile
   sb.auth.getSession().then(({data})=>{ if(data.session) location.replace('profile.html'); });
+
+  // Show/hide password toggle
+  const EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const EYE_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+  document.querySelectorAll('.pw-toggle').forEach(btn=>{
+    btn.innerHTML = EYE;
+    btn.addEventListener('click', ()=>{
+      const input = btn.parentElement.querySelector('input');
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.innerHTML = show ? EYE_OFF : EYE;
+      btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+    });
+  });
 
   // Flip handling
   const flipper = document.getElementById('flipper');
