@@ -177,23 +177,22 @@
       return showMsg(document.getElementById('upMsg'),'Please enter a valid 10-digit mobile number','err');
     }
     loading(document.getElementById('upBtn'), true, 'Sign Up');
-    const { data, error } = await sb.auth.signUp({
+    const { error } = await sb.auth.signUp({
       email, password, options:{ data:{ full_name, phone } }
     });
     if(error){
       loading(document.getElementById('upBtn'), false, 'Sign Up');
       return showMsg(document.getElementById('upMsg'), error.message, 'err');
     }
-    // ensure a session (in case confirmation is on) by signing in
-    if(!data.session){
-      const si = await sb.auth.signInWithPassword({ email, password });
-      if(si.error){
-        loading(document.getElementById('upBtn'), false, 'Sign Up');
-        return showMsg(document.getElementById('upMsg'),'Account created! Please sign in.','ok');
-      }
-    }
-    showMsg(document.getElementById('upMsg'),'Account created! Opening your profile…','ok');
-    setTimeout(()=>location.replace('profile.html'), 700);
+    // Do NOT keep the user signed in after sign up — they must sign in explicitly.
+    await sb.auth.signOut();
+    loading(document.getElementById('upBtn'), false, 'Sign Up');
+    f.reset();
+    document.getElementById('upMsg').className = 'msg';        // clear the sign-up message
+    // Send them to the Sign In view with their email pre-filled
+    document.querySelector('#signInForm [name=email]').value = email;
+    flipper.classList.remove('flipped');
+    showMsg(document.getElementById('inMsg'), 'Account created! Please sign in to continue.', 'ok');
   });
 
   // ---- Sign In ----
