@@ -150,7 +150,13 @@
 
     const staysHtml = stays.length ? `
       <div class="stays">
-        ${stays.map(s=>`
+        ${stays.map(s=>{
+          const paid = s.payment_method === 'online';
+          const payTag = paid
+            ? '<span class="ref" style="background:#e4f3ea">💳 Paid online</span>'
+            : '<span class="ref" style="background:#fff3d9;color:#8a6d1f">🏨 Pay at hotel</span>';
+          const amount = paid ? fmt(s.amount_paid) : fmt(s.total);
+          return `
           <article class="stay">
             <img src="${encodeURI(s.room_name ? roomImg(s.room_type) : 'ScVZdx2Y_400x400.jpg')}" alt="${esc(s.room_name)}" onerror="this.style.display='none'"/>
             <div class="stay-body">
@@ -159,10 +165,11 @@
               <div class="stay-tags">
                 <span class="ref">Ref ${esc(s.ref||'—')}</span>
                 <span class="nights">${s.nights||'?'} night(s)</span>
-                <span class="total">${fmt(s.total)}</span>
+                ${payTag}
+                <span class="total">${amount}</span>
               </div>
             </div>
-          </article>`).join('')}
+          </article>`; }).join('')}
       </div>` : `
       <div class="empty">
         🛏️ You have no stays yet.<br/>

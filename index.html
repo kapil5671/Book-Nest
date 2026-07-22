@@ -212,6 +212,47 @@
   .fg.invalid input,.fg.invalid select{border-color:#c0392b}
   .fg.invalid .err{display:block}
 
+  /* ---------- Payment steps ---------- */
+  .pay-summary{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:18px}
+  .pay-summary .ps-row{display:flex;justify-content:space-between;font-size:.9rem;color:var(--muted);margin-bottom:4px}
+  .pay-summary .ps-row b{color:var(--ink)}
+  .pay-summary .ps-total{border-top:1px dashed var(--line);margin-top:8px;padding-top:8px;font-size:1rem}
+  .pay-summary .ps-total b{color:var(--green-dark);font-size:1.25rem;font-family:'Playfair Display',serif}
+  .step-title{font-family:'Playfair Display',serif;color:var(--green-dark);font-size:1.3rem;margin-bottom:4px}
+  .step-sub{color:var(--muted);font-size:.88rem;margin-bottom:18px}
+
+  .pay-option{
+    display:flex;align-items:center;gap:14px;width:100%;text-align:left;
+    background:#fff;border:2px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;
+    cursor:pointer;transition:.2s;font-family:inherit;position:relative
+  }
+  .pay-option:hover{border-color:var(--green);box-shadow:var(--shadow-sm);transform:translateY(-1px)}
+  .pay-option .po-icon{font-size:1.7rem;width:48px;height:48px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--bg);border-radius:12px}
+  .pay-option .po-main{flex:1}
+  .pay-option .po-main h4{font-family:'Poppins';font-size:1.05rem;color:var(--ink);margin-bottom:2px}
+  .pay-option .po-main small{color:var(--muted);font-size:.82rem}
+  .pay-option .po-amt{text-align:right;font-weight:700;color:var(--green-dark);font-size:1.15rem;font-family:'Playfair Display',serif;white-space:nowrap}
+  .pay-option .po-amt s{display:block;color:var(--muted);font-size:.8rem;font-weight:400;font-family:'Poppins'}
+  .pay-option.online{border-color:var(--gold)}
+  .pay-option.online:hover{border-color:var(--gold-light)}
+  .save-badge{position:absolute;top:-10px;right:14px;background:var(--gold);color:#231a06;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px}
+
+  .pay-methods{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+  .pay-method{display:flex;align-items:center;gap:10px;border:2px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;transition:.15s;font-size:.92rem;font-weight:500;background:#fff}
+  .pay-method:hover{border-color:var(--green)}
+  .pay-method.active{border-color:var(--green);background:#eef6f0}
+  .pay-method .pm-ic{font-size:1.3rem}
+  .demo-note{background:#fff8e8;border:1px solid #f0dca8;color:#8a6d1f;font-size:.78rem;padding:8px 12px;border-radius:9px;margin-bottom:16px;text-align:center}
+  .link-back{background:none;border:none;color:var(--muted);font-family:inherit;font-size:.88rem;cursor:pointer;padding:8px;margin-top:4px;width:100%}
+  .link-back:hover{color:var(--green)}
+
+  /* Success screen */
+  .pay-success{text-align:center;padding:14px 6px}
+  .success-check{width:84px;height:84px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:2.6rem;margin:0 auto 18px;animation:pop .4s ease;box-shadow:0 10px 26px rgba(28,107,63,.4)}
+  .pay-success h3{font-family:'Playfair Display',serif;color:var(--green-dark);font-size:1.7rem;margin-bottom:8px}
+  .pay-success p{color:var(--muted);margin-bottom:6px}
+  .pay-success .succ-ref{display:inline-block;background:#e4f3ea;color:var(--green-dark);font-weight:600;padding:5px 14px;border-radius:20px;margin:8px 0 18px}
+
   /* Toast */
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--green-dark);color:#fff;padding:14px 26px;border-radius:12px;box-shadow:var(--shadow);z-index:200;transition:.4s;font-weight:500}
   .toast.show{transform:translateX(-50%) translateY(0)}
@@ -429,28 +470,85 @@
       <div class="mh-overlay"><h3 id="modalTitle">Book Room</h3></div>
     </div>
     <div class="modal-body">
-      <div class="price-note">
-        <span>Price per night</span>
-        <b id="modalPrice">₹0</b>
-      </div>
-      <form id="bookingForm" novalidate>
-        <div class="fg"><label>Full Name *</label><input type="text" name="fullname" /><span class="err">Please enter your full name</span></div>
-        <div class="row">
-          <div class="fg"><label>Email *</label><input type="email" name="email" /><span class="err">Enter a valid email</span></div>
-          <div class="fg"><label>Mobile Number *</label><input type="tel" name="mobile" /><span class="err">Enter a valid 10-digit number</span></div>
+
+      <!-- STEP 1: Booking details -->
+      <div id="stepDetails">
+        <div class="price-note">
+          <span>Price per night</span>
+          <b id="modalPrice">₹0</b>
         </div>
-        <div class="row">
-          <div class="fg"><label>Check-in *</label><input type="date" name="checkin" /><span class="err">Select check-in date</span></div>
-          <div class="fg"><label>Check-out *</label><input type="date" name="checkout" /><span class="err">Check-out must be after check-in</span></div>
-        </div>
-        <div class="row">
-          <div class="fg"><label>Type of Room *</label>
-            <select name="roomtype" id="modalRoomType"></select>
+        <form id="bookingForm" novalidate>
+          <div class="fg"><label>Full Name *</label><input type="text" name="fullname" /><span class="err">Please enter your full name</span></div>
+          <div class="row">
+            <div class="fg"><label>Email *</label><input type="email" name="email" /><span class="err">Enter a valid email</span></div>
+            <div class="fg"><label>Mobile Number *</label><input type="tel" name="mobile" /><span class="err">Enter a valid 10-digit number</span></div>
           </div>
-          <div class="fg"><label>Budget (₹) *</label><input type="number" name="budget" min="0" placeholder="e.g. 8000" /><span class="err">Enter your budget</span></div>
+          <div class="row">
+            <div class="fg"><label>Check-in *</label><input type="date" name="checkin" /><span class="err">Select check-in date</span></div>
+            <div class="fg"><label>Check-out *</label><input type="date" name="checkout" /><span class="err">Check-out must be after check-in</span></div>
+          </div>
+          <div class="row">
+            <div class="fg"><label>Type of Room *</label>
+              <select name="roomtype" id="modalRoomType"></select>
+            </div>
+            <div class="fg"><label>Budget (₹) *</label><input type="number" name="budget" min="0" placeholder="e.g. 8000" /><span class="err">Enter your budget</span></div>
+          </div>
+          <button class="submit-btn" type="submit">Continue to Payment →</button>
+        </form>
+      </div>
+
+      <!-- STEP 2: Choose payment method -->
+      <div id="stepPayChoice" style="display:none">
+        <div class="step-title">Choose how to pay</div>
+        <div class="step-sub">Review your stay and pick a payment option.</div>
+        <div class="pay-summary" id="paySummary"></div>
+        <button class="pay-option" id="optHotel">
+          <div class="po-icon">🏨</div>
+          <div class="po-main">
+            <h4>Pay at Hotel</h4>
+            <small>Reserve now, pay during check-in</small>
+          </div>
+          <div class="po-amt" id="hotelAmt">₹0</div>
+        </button>
+        <button class="pay-option online" id="optOnline">
+          <span class="save-badge">SAVE 20%</span>
+          <div class="po-icon">💳</div>
+          <div class="po-main">
+            <h4>Pay Online</h4>
+            <small>Get 20% off when you pay now</small>
+          </div>
+          <div class="po-amt" id="onlineAmt">₹0</div>
+        </button>
+        <button class="link-back" id="backToDetails">← Back to details</button>
+      </div>
+
+      <!-- STEP 3: Online payment (simulated) -->
+      <div id="stepOnline" style="display:none">
+        <div class="step-title">Pay Online</div>
+        <div class="step-sub">You save <b id="onlineSaveTxt" style="color:var(--green)">₹0</b> — pay <b id="onlinePayTxt" style="color:var(--green-dark)">₹0</b></div>
+        <div class="demo-note">🔒 Demo payment — no real money is charged. Do not enter real card details.</div>
+        <div class="pay-methods" id="payMethods">
+          <div class="pay-method active" data-m="card"><span class="pm-ic">💳</span> Card</div>
+          <div class="pay-method" data-m="upi"><span class="pm-ic">📱</span> UPI</div>
+          <div class="pay-method" data-m="netbanking"><span class="pm-ic">🏦</span> Net Banking</div>
+          <div class="pay-method" data-m="wallet"><span class="pm-ic">👛</span> Wallet</div>
         </div>
-        <button class="submit-btn" type="submit">Confirm Booking</button>
-      </form>
+        <div id="methodFields"></div>
+        <button class="submit-btn" id="payNowBtn">Pay ₹0</button>
+        <button class="link-back" id="backToChoice">← Choose a different option</button>
+      </div>
+
+      <!-- STEP 4: Success -->
+      <div id="stepSuccess" style="display:none">
+        <div class="pay-success">
+          <div class="success-check">✓</div>
+          <h3 id="successTitle">Booking Confirmed!</h3>
+          <p id="successMsg">Your room is reserved.</p>
+          <span class="succ-ref" id="successRef">Ref BN000000</span>
+          <button class="submit-btn" id="successDone">View My Bookings</button>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -529,7 +627,7 @@ function openModal(roomId){
   modal.classList.add('show');
   document.body.style.overflow='hidden';
 }
-function closeModal(){ modal.classList.remove('show'); document.body.style.overflow=''; clearErrors(); }
+function closeModal(){ modal.classList.remove('show'); document.body.style.overflow=''; clearErrors(); showStep('details'); }
 
 roomsGrid.addEventListener('click', e=>{
   if(e.target.classList.contains('book-btn')){
@@ -556,7 +654,17 @@ modalRoomType.addEventListener('change', ()=>{
 function clearErrors(){ bookingForm.querySelectorAll('.fg').forEach(f=>f.classList.remove('invalid')); }
 function setErr(name, on){ const el=bookingForm.querySelector(`[name=${name}]`); if(el) el.closest('.fg').classList.toggle('invalid', on); }
 
-bookingForm.addEventListener('submit', async e=>{
+// ---------- Booking → Payment flow ----------
+let pendingBooking = null;
+let selectedMethod = 'card';
+const STEPS = { details:'stepDetails', choice:'stepPayChoice', online:'stepOnline', success:'stepSuccess' };
+function showStep(name){
+  Object.values(STEPS).forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='none'; });
+  document.getElementById(STEPS[name]).style.display='';
+}
+
+// Step 1 → validate details, then go to payment choice (do NOT save yet)
+bookingForm.addEventListener('submit', e=>{
   e.preventDefault();
   clearErrors();
   if(!currentUser){
@@ -585,32 +693,117 @@ bookingForm.addEventListener('submit', async e=>{
 
   const room = ROOMS.find(r=>r.id===data.roomtype);
   const nights = Math.max(1, Math.round((new Date(data.checkout)-new Date(data.checkin))/86400000));
-  const booking = {
+  const total = room.price*nights;
+  const discount = Math.round(total*0.20);
+  pendingBooking = {
     ref: 'BN' + Date.now().toString().slice(-8),
     user_id: currentUser.id,
-    full_name: data.fullname,
-    email: data.email,
-    mobile: data.mobile,
-    check_in: data.checkin,
-    check_out: data.checkout,
-    room_type: data.roomtype,
-    room_name: room.name,
-    price: room.price,
-    nights,
-    total: room.price*nights,
-    budget: data.budget ? Number(data.budget) : null
+    full_name: data.fullname, email: data.email, mobile: data.mobile,
+    check_in: data.checkin, check_out: data.checkout,
+    room_type: data.roomtype, room_name: room.name,
+    price: room.price, nights, total,
+    budget: data.budget ? Number(data.budget) : null,
+    _discount: discount, _online: total - discount
   };
 
-  // Save to Supabase (tied to this user)
-  const { error } = await sb.from('bookings').insert(booking);
-  if(error){
-    console.error('Supabase booking error:', error);
-    showToast('Booking failed: ' + error.message);
-    return;
+  // Fill the payment-choice screen
+  document.getElementById('paySummary').innerHTML = `
+    <div class="ps-row"><span>${room.name}</span><b>${fmt(room.price)}/night</b></div>
+    <div class="ps-row"><span>${data.checkin} → ${data.checkout}</span><b>${nights} night(s)</b></div>
+    <div class="ps-row ps-total"><span>Total</span><b>${fmt(total)}</b></div>`;
+  document.getElementById('hotelAmt').textContent = fmt(total);
+  document.getElementById('onlineAmt').innerHTML = `${fmt(total-discount)}<s>${fmt(total)}</s>`;
+  showStep('choice');
+});
+
+// Save the pending booking (with payment info) to Supabase
+async function saveBooking(extra){
+  const b = { ...pendingBooking };
+  delete b._discount; delete b._online;
+  Object.assign(b, extra);
+  const { error } = await sb.from('bookings').insert(b);
+  return error;
+}
+
+function showSuccess(title, msg){
+  document.getElementById('successTitle').textContent = title;
+  document.getElementById('successMsg').textContent = msg;
+  document.getElementById('successRef').textContent = 'Ref ' + pendingBooking.ref;
+  showStep('success');
+}
+
+// Step 2a: Pay at Hotel → confirm immediately
+document.getElementById('optHotel').addEventListener('click', async ()=>{
+  const btn = document.getElementById('optHotel');
+  btn.style.pointerEvents = 'none';
+  const error = await saveBooking({ payment_method:'pay_at_hotel', payment_status:'pending', discount:0, amount_paid:0 });
+  btn.style.pointerEvents = '';
+  if(error){ showToast('Booking failed: ' + error.message); return; }
+  showSuccess('Booking Confirmed!', `Please pay ${fmt(pendingBooking.total)} at the hotel during check-in.`);
+});
+
+// Step 2b: Pay Online → go to payment methods
+document.getElementById('optOnline').addEventListener('click', ()=>{
+  document.getElementById('onlineSaveTxt').textContent = fmt(pendingBooking._discount);
+  document.getElementById('onlinePayTxt').textContent = fmt(pendingBooking._online);
+  document.getElementById('payNowBtn').textContent = `Pay ${fmt(pendingBooking._online)}`;
+  selectedMethod = 'card';
+  document.querySelectorAll('.pay-method').forEach(m=>m.classList.toggle('active', m.dataset.m==='card'));
+  renderMethodFields('card');
+  showStep('online');
+});
+
+// Payment method tiles
+document.getElementById('payMethods').addEventListener('click', e=>{
+  const m = e.target.closest('.pay-method'); if(!m) return;
+  selectedMethod = m.dataset.m;
+  document.querySelectorAll('.pay-method').forEach(x=>x.classList.toggle('active', x===m));
+  renderMethodFields(selectedMethod);
+});
+
+function renderMethodFields(m){
+  const el = document.getElementById('methodFields');
+  if(m==='card'){
+    el.innerHTML = `
+      <div class="fg"><label>Card Number</label><input type="text" id="pf_card" inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456"/></div>
+      <div class="row">
+        <div class="fg"><label>Expiry (MM/YY)</label><input type="text" id="pf_exp" maxlength="5" placeholder="MM/YY"/></div>
+        <div class="fg"><label>CVV</label><input type="password" id="pf_cvv" maxlength="4" placeholder="•••"/></div>
+      </div>`;
+  } else if(m==='upi'){
+    el.innerHTML = `<div class="fg"><label>UPI ID</label><input type="text" id="pf_upi" placeholder="yourname@upi"/></div>`;
+  } else if(m==='netbanking'){
+    el.innerHTML = `<div class="fg"><label>Select Bank</label><select id="pf_bank"><option>HDFC Bank</option><option>ICICI Bank</option><option>State Bank of India</option><option>Axis Bank</option><option>Kotak Mahindra</option></select></div>`;
+  } else {
+    el.innerHTML = `<div class="fg"><label>Select Wallet</label><select id="pf_wallet"><option>Paytm</option><option>PhonePe</option><option>Amazon Pay</option><option>Mobikwik</option></select></div>`;
   }
+}
+
+// Pay now (simulated gateway — no real charge)
+document.getElementById('payNowBtn').addEventListener('click', async ()=>{
+  const btn = document.getElementById('payNowBtn');
+  if(selectedMethod==='card'){
+    const num = (document.getElementById('pf_card').value||'').replace(/\s/g,'');
+    const cvv = (document.getElementById('pf_cvv').value||'');
+    if(num.length < 12 || !/^\d+$/.test(num)){ showToast('Enter a valid card number'); return; }
+    if(cvv.length < 3){ showToast('Enter the CVV'); return; }
+  } else if(selectedMethod==='upi'){
+    if(!/^[\w.\-]+@[\w.\-]+$/.test(document.getElementById('pf_upi').value||'')){ showToast('Enter a valid UPI ID'); return; }
+  }
+  btn.disabled = true; btn.textContent = 'Processing payment…';
+  await new Promise(r=>setTimeout(r, 1500)); // simulate gateway round-trip
+  const error = await saveBooking({ payment_method:'online', payment_status:'paid', discount: pendingBooking._discount, amount_paid: pendingBooking._online });
+  btn.disabled = false; btn.textContent = `Pay ${fmt(pendingBooking._online)}`;
+  if(error){ showToast('Payment failed: ' + error.message); return; }
+  showSuccess('Payment Successful!', `You paid ${fmt(pendingBooking._online)} and saved ${fmt(pendingBooking._discount)}. Your booking is confirmed.`);
+});
+
+// Back navigation + finish
+document.getElementById('backToDetails').addEventListener('click', ()=>showStep('details'));
+document.getElementById('backToChoice').addEventListener('click', ()=>showStep('choice'));
+document.getElementById('successDone').addEventListener('click', async ()=>{
   closeModal();
   bookingForm.reset();
-  showToast(`Booking confirmed! Ref ${booking.ref}`);
   await renderBookings();
   document.getElementById('bookings').scrollIntoView({behavior:'smooth'});
 });
@@ -630,19 +823,24 @@ async function renderBookings(){
     bookingsWrap.innerHTML = `<div class="empty">🛏️ You have no bookings yet.<br/><a href="#rooms" style="color:var(--green);font-weight:600">Browse rooms →</a></div>`;
     return;
   }
-  bookingsWrap.innerHTML = stays.map(b=>`
+  bookingsWrap.innerHTML = stays.map(b=>{
+    const paid = b.payment_method === 'online';
+    const payTag = paid
+      ? `<span class="conf-tag" style="background:#e4f3ea">💳 Paid online</span>`
+      : `<span class="conf-tag" style="background:#fff3d9;color:#8a6d1f">🏨 Pay at hotel</span>`;
+    return `
     <div class="booking-item">
       <img src="${encodeURI(roomImg(b.room_type))}" alt="${b.room_name||''}" />
       <div class="bi-main">
         <h4>${b.room_name || b.room_type}</h4>
         <small>${b.check_in} → ${b.check_out} · ${b.nights} night(s)</small>
-        <br/><span class="conf-tag">Confirmed · Ref ${b.ref}</span>
+        <br/><span class="conf-tag">Confirmed · Ref ${b.ref}</span> ${payTag}
       </div>
       <div style="text-align:right">
-        <div class="bi-price">${fmt(b.total)}</div>
-        <small style="color:var(--muted)">${fmt(b.price)}/night</small>
+        <div class="bi-price">${paid ? fmt(b.amount_paid) : fmt(b.total)}</div>
+        <small style="color:var(--muted)">${paid ? 'paid ('+fmt(b.discount)+' off)' : 'due at hotel'}</small>
       </div>
-    </div>`).join('')
+    </div>`; }).join('')
     + `<p style="text-align:center;margin-top:18px"><a href="profile.html" style="color:var(--green);font-weight:600">View full profile &amp; all stays →</a></p>`;
 }
 
