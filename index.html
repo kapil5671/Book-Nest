@@ -201,9 +201,9 @@
   @keyframes pop{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
   .modal-head{position:relative;padding:0}
   .modal-head img{width:100%;height:150px;object-fit:cover}
-  .modal-head .mh-overlay{position:absolute;inset:0;background:linear-gradient(transparent,rgba(0,0,0,.7));display:flex;align-items:flex-end;padding:16px 22px}
+  .modal-head .mh-overlay{position:absolute;inset:0;background:linear-gradient(transparent,rgba(0,0,0,.7));display:flex;align-items:flex-end;padding:16px 22px;pointer-events:none}
   .modal-head h3{color:#fff;font-size:1.5rem}
-  .modal-head .close{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.5);color:#fff;border:none;width:36px;height:36px;border-radius:50%;font-size:1.2rem;cursor:pointer;line-height:1}
+  .modal-head .close{position:absolute;top:12px;right:12px;z-index:3;background:rgba(0,0,0,.5);color:#fff;border:none;width:36px;height:36px;border-radius:50%;font-size:1.2rem;cursor:pointer;line-height:1}
   .modal-body{padding:24px}
   .modal-body .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   .price-note{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:.9rem;color:var(--muted);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
