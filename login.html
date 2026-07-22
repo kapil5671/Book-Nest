@@ -121,20 +121,37 @@
           <img src="ScVZdx2Y_400x400.jpg" alt="BookNest"/>
           <span class="brand-name"><span class="b">Book</span><span class="n">Nest</span></span>
         </div>
-        <h2>Welcome Back</h2>
-        <p class="sub">Sign in to see your bookings &amp; stays</p>
-        <div class="msg" id="inMsg"></div>
-        <form id="signInForm">
-          <div class="fg"><label>Email</label><input type="email" name="email" required placeholder="you@example.com" autocomplete="email"/></div>
-          <div class="fg"><label>Password</label>
-            <div class="pw-wrap">
-              <input type="password" name="password" required placeholder="••••••••" autocomplete="current-password"/>
-              <button type="button" class="pw-toggle" aria-label="Show password"></button>
+
+        <!-- Sign in view -->
+        <div id="signInView">
+          <h2>Welcome Back</h2>
+          <p class="sub">Sign in to see your bookings &amp; stays</p>
+          <div class="msg" id="inMsg"></div>
+          <form id="signInForm">
+            <div class="fg"><label>Email</label><input type="email" name="email" required placeholder="you@example.com" autocomplete="email"/></div>
+            <div class="fg"><label>Password</label>
+              <div class="pw-wrap">
+                <input type="password" name="password" required placeholder="••••••••" autocomplete="current-password"/>
+                <button type="button" class="pw-toggle" aria-label="Show password"></button>
+              </div>
             </div>
-          </div>
-          <button class="btn" type="submit" id="inBtn">Sign In</button>
-        </form>
-        <p class="switch">New to BookNest? <a id="toSignUp">Create an account</a></p>
+            <div style="text-align:right;margin:-6px 0 12px"><a id="toReset" style="color:var(--green);font-weight:500;font-size:.85rem;cursor:pointer">Forgot password?</a></div>
+            <button class="btn" type="submit" id="inBtn">Sign In</button>
+          </form>
+          <p class="switch">New to BookNest? <a id="toSignUp">Create an account</a></p>
+        </div>
+
+        <!-- Reset password request view -->
+        <div id="resetView" style="display:none">
+          <h2>Reset Password</h2>
+          <p class="sub">Enter your registered email and we'll send you a reset link</p>
+          <div class="msg" id="resetMsg"></div>
+          <form id="resetForm">
+            <div class="fg"><label>Email</label><input type="email" name="email" required placeholder="you@example.com" autocomplete="email"/></div>
+            <button class="btn" type="submit" id="resetBtn">Send Reset Link</button>
+          </form>
+          <p class="switch"><a id="backToSignIn2">← Back to sign in</a></p>
+        </div>
       </section>
 
       <!-- ===== SIGN UP (back) ===== -->
@@ -192,8 +209,45 @@
   document.getElementById('toSignUp').onclick = ()=>flipper.classList.add('flipped');
   document.getElementById('toSignIn').onclick = ()=>flipper.classList.remove('flipped');
 
+  // Toggle between Sign In view and Reset Password view (same front panel)
+  const signInView = document.getElementById('signInView');
+  const resetView = document.getElementById('resetView');
+  document.getElementById('toReset').onclick = ()=>{ signInView.style.display='none'; resetView.style.display=''; };
+  document.getElementById('backToSignIn2').onclick = ()=>{ resetView.style.display='none'; signInView.style.display=''; };
+
   function showMsg(el, text, type){ el.textContent=text; el.className='msg show '+type; }
   function loading(btn, on, label){ btn.disabled=on; btn.innerHTML = on ? '<span class="spinner"></span>Please wait…' : label; }
+
+  // ---- Reset Password request ----
+  document.getElementById('resetForm').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const email = e.target.email.value.trim();
+    const msg = document.getElementById('resetMsg');
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+      return showMsg(msg, 'Please enter a valid email address', 'err');
+    }
+    loading(document.getElementById('resetBtn'), true, 'Send Reset Link');
+    // 1. Verify the email is registered with BookNest
+    const { data: exists, error: chkErr } = await sb.rpc('email_registered', { p_email: email });
+    if(chkErr){
+      loading(document.getElementById('resetBtn'), false, 'Send Reset Link');
+      return showMsg(msg, 'Something went wrong. Please try again.', 'err');
+    }
+    if(!exists){
+      loading(document.getElementById('resetBtn'), false, 'Send Reset Link');
+      return showMsg(msg, 'This email is not registered with BookNest.', 'err');
+    }
+    // 2. Ask Supabase to email a secure reset link (token handled by Supabase)
+    const { error } = await sb.auth.resetPasswordForEmail(email, {
+      redirectTo: location.origin + '/reset-password.html'
+    });
+    loading(document.getElementById('resetBtn'), false, 'Send Reset Link');
+    if(error){
+      return showMsg(msg, error.message, 'err');
+    }
+    showMsg(msg, '✓ A password reset link has been sent to ' + email + '. Open it to set a new password.', 'ok');
+    e.target.reset();
+  });
 
   // ---- Sign Up ----
   document.getElementById('signUpForm').addEventListener('submit', async e=>{
