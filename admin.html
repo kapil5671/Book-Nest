@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BookNest — Admin Dashboard</title>
+<link rel="icon" href="ScVZdx2Y_400x400.jpg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --green:#1c6b3f;--green-dark:#134d2d;--gold:#c99a3a;--gold-light:#e2b968;
+    --ink:#1a2b22;--muted:#6b7c72;--bg:#f5f7f4;--line:#e6ebe6;--card:#fff;
+    --shadow:0 10px 30px rgba(19,77,45,.12);--shadow-sm:0 4px 14px rgba(0,0,0,.08);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Poppins',system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.6}
+  h1,h2,h3,.brand-name{font-family:'Playfair Display',serif}
+  a{text-decoration:none;color:inherit}
+  img{display:block;max-width:100%}
+  .container{width:min(1200px,94%);margin:0 auto}
+
+  header{background:linear-gradient(120deg,var(--green-dark),var(--green) 55%,#20613a);
+    box-shadow:0 6px 24px rgba(19,77,45,.35);border-bottom:3px solid var(--gold);position:sticky;top:0;z-index:20}
+  .nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand img{width:46px;height:46px;border-radius:11px;background:#fff;padding:3px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+  .brand-name{font-size:1.4rem;font-weight:800;color:#fff}
+  .brand-name .n{color:var(--gold-light)}
+  .badge-admin{background:var(--gold);color:#231a06;font-size:.7rem;font-weight:700;padding:3px 9px;border-radius:20px;margin-left:6px;letter-spacing:.5px}
+  .nav-actions{display:flex;gap:8px;align-items:center}
+  .nav-actions a,.nav-actions button{font-family:inherit;font-size:.88rem;font-weight:500;padding:9px 15px;border-radius:30px;cursor:pointer;border:none;transition:.2s}
+  .btn-ghost{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3)!important}
+  .btn-ghost:hover{background:rgba(255,255,255,.25)}
+
+  .wrap{padding:34px 0 70px}
+  .page-head{margin-bottom:22px}
+  .page-head h1{color:var(--green-dark);font-size:1.9rem}
+  .page-head p{color:var(--muted);font-size:.95rem}
+
+  .stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px}
+  .stat-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow-sm)}
+  .stat-card b{display:block;font-family:'Playfair Display',serif;font-size:1.7rem;color:var(--green-dark)}
+  .stat-card span{color:var(--muted);font-size:.85rem}
+
+  .toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+  .toolbar h2{color:var(--green-dark);font-size:1.3rem}
+  #search{padding:10px 14px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:.9rem;outline:none;min-width:240px;background:#fff}
+  #search:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(28,107,63,.12)}
+
+  .table-card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-sm);overflow:hidden}
+  .tbl-scroll{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;min-width:760px}
+  thead th{background:#eef4f0;color:var(--green-dark);text-align:left;font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;padding:13px 16px;font-weight:600;white-space:nowrap}
+  tbody td{padding:13px 16px;border-top:1px solid var(--line);font-size:.9rem;white-space:nowrap}
+  tbody tr{cursor:pointer;transition:.12s}
+  tbody tr:hover{background:#f3f8f4}
+  .u-name{font-weight:600;color:var(--ink)}
+  .u-email{color:var(--muted);font-size:.84rem}
+  .num{font-weight:600;color:var(--green-dark)}
+  .pill{display:inline-block;background:var(--green);color:#fff;font-size:.78rem;font-weight:600;padding:2px 10px;border-radius:20px}
+  .view-link{color:var(--green);font-weight:600;font-size:.84rem}
+  .loading,.empty{text-align:center;color:var(--muted);padding:50px 20px}
+  .spinner{display:inline-block;width:30px;height:30px;border:3px solid var(--line);border-top-color:var(--green);border-radius:50%;animation:sp .7s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  /* Access denied */
+  .denied{max-width:460px;margin:80px auto;text-align:center;background:#fff;border:1px solid var(--line);border-radius:18px;padding:40px 30px;box-shadow:var(--shadow-sm)}
+  .denied h2{color:#c0392b;margin-bottom:10px}
+  .denied p{color:var(--muted);margin-bottom:18px}
+  .denied a{display:inline-block;background:var(--green);color:#fff;padding:11px 22px;border-radius:10px;font-weight:600}
+
+  /* Modal */
+  .modal{position:fixed;inset:0;background:rgba(15,45,28,.6);backdrop-filter:blur(4px);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:30px 16px;overflow-y:auto}
+  .modal.show{display:flex}
+  .modal-card{background:#fff;border-radius:20px;width:min(720px,100%);box-shadow:0 30px 70px rgba(0,0,0,.35);overflow:hidden;animation:pop .3s ease}
+  @keyframes pop{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+  .modal-head{background:linear-gradient(120deg,var(--green-dark),var(--green));color:#fff;padding:20px 24px;position:relative}
+  .modal-head h3{font-size:1.4rem;margin-bottom:2px}
+  .modal-head .mh-sub{opacity:.9;font-size:.86rem}
+  .modal-head .close{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.3);color:#fff;border:none;width:34px;height:34px;border-radius:50%;font-size:1.2rem;cursor:pointer;line-height:1}
+  .modal-body{padding:20px 24px 26px;max-height:70vh;overflow-y:auto}
+  .txn{border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+  .txn img{width:74px;height:56px;border-radius:9px;object-fit:cover;flex-shrink:0}
+  .txn .t-main{flex:1;min-width:180px}
+  .txn .t-main h4{font-family:'Poppins';font-size:1.02rem;color:var(--green-dark)}
+  .txn .t-main small{color:var(--muted);display:block}
+  .tag{display:inline-block;font-size:.72rem;font-weight:600;padding:2px 9px;border-radius:20px;margin-top:5px;margin-right:5px}
+  .tag.ref{background:#eef4f0;color:var(--green-dark)}
+  .tag.online{background:#e4f3ea;color:var(--green-dark)}
+  .tag.hotel{background:#fff3d9;color:#8a6d1f}
+  .txn .t-amt{text-align:right;min-width:110px}
+  .txn .t-amt b{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--green-dark);display:block}
+  .txn .t-amt small{color:var(--muted);font-size:.78rem;display:block}
+</style>
+</head>
+<body>
+<header>
+  <div class="container nav">
+    <div class="brand">
+      <img src="ScVZdx2Y_400x400.jpg" alt="BookNest"/>
+      <span class="brand-name">Book<span class="n">Nest</span><span class="badge-admin">ADMIN</span></span>
+    </div>
+    <div class="nav-actions">
+      <a href="index.html" class="btn-ghost">← Site</a>
+      <button class="btn-ghost" id="logoutBtn">Logout</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="container" id="content">
+    <div class="loading"><div class="spinner"></div><p style="margin-top:12px">Loading dashboard…</p></div>
+  </div>
+</div>
+
+<!-- Transactions modal -->
+<div class="modal" id="txnModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <button class="close" id="txnClose">&times;</button>
+      <h3 id="txnUser">User</h3>
+      <div class="mh-sub" id="txnSub"></div>
+    </div>
+    <div class="modal-body" id="txnBody"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://zbbzxayolamexndbtpox.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_J_Xd5Ft8BtG1Ev7IixUGLg_HifPfCeq';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const fmt = n => '₹' + Number(n||0).toLocaleString('en-IN');
+  const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const ROOM_IMG = {
+    'heritage':'Pushp-Dwaar-Blooming-Meadows-Wallpaper-Mural-M2-710x488.jpg','grey-loft':'2122ead425fca999868aec6814617254.jpg',
+    'emerald':'design-style-room-interior-wallpaper-preview.jpg','mono':'ed8a8f510b0929d16f8959e3f5d10e68.jpg',
+    'ocean':'minimalist-living-room-adorned-with-blue-coral-reef-canvas-and-underwater-view-photo.jpeg',
+    'forest':'stylish-living-room-with-expansive-windows-in-a-bright-open-layout-photo.jpg','nordic':'images.jpg',
+    'scandi':'images (1).jpg','twin':'images (2).jpg'
+  };
+  const roomImg = t => ROOM_IMG[t] || 'ScVZdx2Y_400x400.jpg';
+
+  document.getElementById('logoutBtn').onclick = async ()=>{ await sb.auth.signOut(); location.replace('login.html'); };
+
+  let USERS = [];
+
+  (async ()=>{
+    const { data:{ session } } = await sb.auth.getSession();
+    if(!session){ location.replace('login.html'); return; }
+
+    const { data, error } = await sb.rpc('admin_list_users');
+    if(error){
+      // Not an admin (or blocked) → access denied
+      document.getElementById('content').innerHTML = `
+        <div class="denied">
+          <h2>🔒 Access Denied</h2>
+          <p>This dashboard is for administrators only.<br/>You're signed in as <b>${esc(session.user.email)}</b>.</p>
+          <a href="index.html">← Back to BookNest</a>
+        </div>`;
+      return;
+    }
+    USERS = data || [];
+    renderDashboard();
+  })();
+
+  function renderDashboard(){
+    const totalUsers = USERS.length;
+    const totalBookings = USERS.reduce((s,u)=>s+Number(u.total_bookings||0),0);
+    const totalPaid = USERS.reduce((s,u)=>s+Number(u.paid_online||0),0);
+    const totalPending = USERS.reduce((s,u)=>s+Number(u.pending_hotel||0),0);
+
+    document.getElementById('content').innerHTML = `
+      <div class="page-head">
+        <h1>Admin Dashboard</h1>
+        <p>Every registered user and their transactions. Click a user to see all their bookings.</p>
+      </div>
+      <div class="stat-row">
+        <div class="stat-card"><b>${totalUsers}</b><span>Total Users</span></div>
+        <div class="stat-card"><b>${totalBookings}</b><span>Total Bookings</span></div>
+        <div class="stat-card"><b>${fmt(totalPaid)}</b><span>Collected Online</span></div>
+        <div class="stat-card"><b>${fmt(totalPending)}</b><span>Pending (Pay at Hotel)</span></div>
+      </div>
+      <div class="toolbar">
+        <h2>Users</h2>
+        <input id="search" type="text" placeholder="Search by name or email…" />
+      </div>
+      <div class="table-card">
+        <div class="tbl-scroll">
+          <table>
+            <thead><tr>
+              <th>User</th><th>Mobile</th><th>Member Since</th><th>Bookings</th>
+              <th>Total Value</th><th>Paid Online</th><th>Pending</th><th></th>
+            </tr></thead>
+            <tbody id="userRows"></tbody>
+          </table>
+        </div>
+      </div>`;
+
+    document.getElementById('search').addEventListener('input', e=>renderRows(e.target.value.trim().toLowerCase()));
+    renderRows('');
+  }
+
+  function renderRows(q){
+    const rows = USERS.filter(u=>{
+      if(!q) return true;
+      return (u.full_name||'').toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q);
+    });
+    const tb = document.getElementById('userRows');
+    if(!rows.length){ tb.innerHTML = `<tr><td colspan="8"><div class="empty">No users match your search.</div></td></tr>`; return; }
+    tb.innerHTML = rows.map(u=>`
+      <tr data-uid="${u.user_id}" data-name="${esc(u.full_name||'')}" data-email="${esc(u.email||'')}">
+        <td><div class="u-name">${esc(u.full_name||'—')}</div><div class="u-email">${esc(u.email||'')}</div></td>
+        <td>${esc(u.phone||'—')}</td>
+        <td>${new Date(u.member_since).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</td>
+        <td><span class="pill">${u.total_bookings}</span></td>
+        <td class="num">${fmt(u.total_value)}</td>
+        <td class="num">${fmt(u.paid_online)}</td>
+        <td class="num">${fmt(u.pending_hotel)}</td>
+        <td><span class="view-link">View →</span></td>
+      </tr>`).join('');
+    tb.querySelectorAll('tr[data-uid]').forEach(tr=>tr.addEventListener('click', ()=>openTxns(tr.dataset.uid, tr.dataset.name, tr.dataset.email)));
+  }
+
+  // ---- Transactions modal ----
+  const txnModal = document.getElementById('txnModal');
+  document.getElementById('txnClose').onclick = ()=>{ txnModal.classList.remove('show'); document.body.style.overflow=''; };
+  txnModal.addEventListener('click', e=>{ if(e.target===txnModal){ txnModal.classList.remove('show'); document.body.style.overflow=''; } });
+
+  async function openTxns(uid, name, email){
+    document.getElementById('txnUser').textContent = name || 'User';
+    document.getElementById('txnSub').textContent = email || '';
+    document.getElementById('txnBody').innerHTML = `<div class="loading"><div class="spinner"></div></div>`;
+    txnModal.classList.add('show'); document.body.style.overflow='hidden';
+
+    const { data, error } = await sb.rpc('admin_user_transactions', { p_user: uid });
+    if(error){ document.getElementById('txnBody').innerHTML = `<div class="empty">Could not load transactions.</div>`; return; }
+    if(!data || !data.length){ document.getElementById('txnBody').innerHTML = `<div class="empty">🛏️ This user has no transactions yet.</div>`; return; }
+
+    document.getElementById('txnBody').innerHTML = data.map(b=>{
+      const online = b.payment_method === 'online';
+      const methodTag = online
+        ? `<span class="tag online">💳 Paid online</span>`
+        : `<span class="tag hotel">🏨 Pay at hotel</span>`;
+      const amount = online ? fmt(b.amount_paid) : fmt(b.total);
+      const amtLabel = online ? `paid${b.discount>0?' · '+fmt(b.discount)+' off':''}` : 'due at hotel';
+      return `
+      <div class="txn">
+        <img src="${encodeURI(roomImg(b.room_type))}" alt="" onerror="this.style.display='none'"/>
+        <div class="t-main">
+          <h4>${esc(b.room_name||b.room_type)}</h4>
+          <small>📅 ${esc(b.check_in)} → ${esc(b.check_out)} · ${b.nights} night(s)</small>
+          <small>Booked ${new Date(b.created_at).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</small>
+          <div><span class="tag ref">Ref ${esc(b.ref||'—')}</span>${methodTag}</div>
+        </div>
+        <div class="t-amt"><b>${amount}</b><small>${amtLabel}</small><small>total ${fmt(b.total)}</small></div>
+      </div>`;
+    }).join('');
+  }
+</script>
+</body>
+</html>

@@ -243,7 +243,11 @@
     });
     loading(document.getElementById('resetBtn'), false, 'Send Reset Link');
     if(error){
-      return showMsg(msg, error.message, 'err');
+      console.error('resetPasswordForEmail error:', error);
+      const friendly = (error.status >= 500 || error.name === 'AuthRetryableFetchError' || !error.message || error.message === '{}')
+        ? "We couldn't send the reset email right now. Please try again in a few minutes."
+        : error.message;
+      return showMsg(msg, friendly, 'err');
     }
     showMsg(msg, '✓ A password reset link has been sent to ' + email + '. Open it to set a new password.', 'ok');
     e.target.reset();
